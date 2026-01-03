@@ -83,7 +83,10 @@ GROUP BY region
 - Business implication:
   - Regions with high sales but slower delivery times may benefit from operational improvements.
   - Clean temporal data allows decision-makers to align logistics performance with sales growth trends.
-    
+
+## Regional Summary Visualization
+![Regional Sales Summary](visuals/regional_summary.png)
+
 - The dataset is now ready for further analysis, such as sales trends, top products, and customer behavior.
 
 
