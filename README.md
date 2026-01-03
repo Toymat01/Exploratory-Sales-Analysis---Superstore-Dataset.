@@ -25,40 +25,44 @@ The challenge was to clean and convert these dates into proper DATE types for an
 
 ## Key SQL Queries
 Step 1: Clean hidden characters
--- UPDATE superstore_data
--- SET order_date = REGEXP_REPLACE(order_date, '[^0-9/]', ''),
---     ship_date  = REGEXP_REPLACE(ship_date,  '[^0-9/]', '');
-
+```sql
+UPDATE superstore_data
+SET order_date = REGEXP_REPLACE(order_date, '[^0-9/]', ''),
+ship_date  = REGEXP_REPLACE(ship_date,  '[^0-9/]', '');
+```
 Step 2: Create clean date columns
--- ALTER TABLE superstore_data
--- ADD COLUMN order_date_clean DATE,
--- ADD COLUMN ship_date_clean DATE;
-
+```sql
+ALTER TABLE superstore_data
+ADD COLUMN order_date_clean DATE,
+ADD COLUMN ship_date_clean DATE;
+```
 Step 3: Attempt string-to-date conversion
--- UPDATE superstore_data
--- SET order_date_clean = STR_TO_DATE(order_date, '%m,%d,%Y'),
--- ship_date_clean = STR_TO_DATE(ship_date, '%m, %d, %Y')
-
+```sql
+UPDATE superstore_data
+SET order_date_clean = STR_TO_DATE(order_date, '%m,%d,%Y'),
+ship_date_clean = STR_TO_DATE(ship_date, '%m, %d, %Y')
+```
 Step 4: Create a clean analytical table
--- CREATE TABLE superstore_clean AS
--- SELECT
---     *,
---     STR_TO_DATE(order_date, '%m/%d/%Y') AS order_date_cleaned,
---     STR_TO_DATE(ship_date,  '%m/%d/%Y') AS ship_date_cleaned
--- FROM superstore_data;
-
+```sql
+CREATE TABLE superstore_clean AS
+SELECT *,
+	STR_TO_DATE(order_date, '%m/%d/%Y') AS order_date_cleaned,
+	STR_TO_DATE(ship_date,  '%m/%d/%Y') AS ship_date_cleaned
+FROM superstore_data;
+```
 Step 5: Remove raw date columns and finalize schema
--- ALTER TABLE superstore_clean
--- DROP COLUMN order_date,
--- DROP COLUMN order_date_clean,
--- DROP COLUMN ship_date_clean,
--- DROP COLUMN ship_date;
-
--- ALTER TABLE superstore_clean
--- CHANGE order_date_cleaned order_date DATE,
--- CHANGE ship_date_cleaned ship_date DATE;
-
+```sql
+ALTER TABLE superstore_clean
+DROP COLUMN order_date,
+DROP COLUMN order_date_clean,
+DROP COLUMN ship_date_clean,
+DROP COLUMN ship_date;
+ALTER TABLE superstore_clean
+CHANGE order_date_cleaned order_date DATE,
+CHANGE ship_date_cleaned ship_date DATE;
+```
 Final Analysis Query: Regional Performance & Delivery Time
+```sql
 SELECT 
 	region,
     ROUND(SUM(sales),2) AS total_sales,
@@ -66,9 +70,9 @@ SELECT
 	ROUND(AVG(DATEDIFF(ship_date, order_date)), 2) AS avg_delivery_days
 FROM superstore_clean
 GROUP BY region
+```
 
 ## Insights
-
 - All dates successfully converted to DATE type for accurate analysis.
 - Average delivery days per region:
   - West: 3.93 days
@@ -83,9 +87,13 @@ GROUP BY region
 - Business implication:
   - Regions with high sales but slower delivery times may benefit from operational improvements.
   - Clean temporal data allows decision-makers to align logistics performance with sales growth trends.
+  - Clean date fields enabled time-based analysis, making the dataset suitablefor future sales trend and seasonality studies.
 
 ## Regional Summary Visualization
 ![Regional Sales Summary](visuals/regional_summary.png)
+This chart summarizes total sales, total orders, and the average number of delivery days by region.
+The analysis was only possible after resolving inconsistent date formats
+and converting them into proper DATE types.
 
 - The dataset is now ready for further analysis, such as sales trends, top products, and customer behavior.
 
